@@ -106,8 +106,6 @@ The engine is built around a modular design:
 - **Storage Layer:** A pluggable persistence backend records task state, execution history, and provides real-time status updates.
 - **API & CLI:** Interfaces for interacting with the engine programmatically and via command-line.
 
-A detailed diagram of the system architecture is available in the [docs](docs/architecture.md).
-
 ## Development
 
 ### Running Tests
