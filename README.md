@@ -40,16 +40,22 @@ A multi-threaded, asynchronous engine for defining, scheduling, and executing co
    cd rust-workflow-engine
    ```
 
-2. **Build the project:**
+2. **Install sqlx-cli globally:**
 
    ```sh
-   cargo build --release
+   cargo install sqlx-cli
    ```
 
-3. **Run the engine:**
+3. **Run the setup script:**
 
    ```sh
-   cargo run --release
+    ./scripts/setup.sh
+   ```
+
+4. **Run the engine:**
+
+   ```sh
+   cargo run
    ```
 
 ## Usage
@@ -107,14 +113,6 @@ The engine is built around a modular design:
 - **API & CLI:** Interfaces for interacting with the engine programmatically and via command-line.
 
 ## Development
-
-### Running Tests
-
-The project uses both unit and integration tests. To run tests, execute:
-
-```sh
-cargo test
-```
 
 ### Code Style
 
