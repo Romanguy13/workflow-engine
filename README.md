@@ -67,36 +67,36 @@ Below is a simple example of how to define and run a workflow with two tasks:
 **Rust Code:**
 
 ```rust
-    use workflow_engine::engine::Workflow;
-    use workflow_engine::task::ExampleTask;
-    use workflow_engine::task::RetryPolicy;
-    use workflow_engine::storage::sqlite_storage::SqliteStorage;
-    use std::sync::Arc;
+use workflow_engine::engine::Workflow;
+use workflow_engine::task::ExampleTask;
+use workflow_engine::task::RetryPolicy;
+use workflow_engine::storage::sqlite_storage::SqliteStorage;
+use std::sync::Arc;
 
-    #[tokio::main]
-    async fn main() {
-        // Initialize storage backend (SQLite example)
-        let storage = Arc::new(SqliteStorage::new("sqlite:workflow.db").await.unwrap());
-        storage.init().await.unwrap();
+#[tokio::main]
+async fn main() {
+    // Initialize storage backend (SQLite example)
+    let storage = Arc::new(SqliteStorage::new("sqlite:workflow.db").await.unwrap());
+    storage.init().await.unwrap();
 
-        // Build the workflow with a unique workflow ID.
-        let workflow = Workflow::new("example_workflow", storage)
-            .add_task(
-              "task1",
-              ExampleTask { name: "Task 1".into(), fail_once: false },
-              vec![],
-              None
-            )
-            .add_task(
-              "task2",
-              ExampleTask { name: "Task 2".into(), fail_once: true },
-              vec!["task1".into()],
-              Some(RetryPolicy { max_retries: 2, retry_delay: std::time::Duration::from_secs(2) })
-            );
+    // Build the workflow with a unique workflow ID.
+    let workflow = Workflow::new("example_workflow", storage)
+        .add_task(
+          "task1",
+          ExampleTask { name: "Task 1".into(), fail_once: false },
+          vec![],
+          None
+        )
+        .add_task(
+          "task2",
+          ExampleTask { name: "Task 2".into(), fail_once: true },
+          vec!["task1".into()],
+          Some(RetryPolicy { max_retries: 2, retry_delay: std::time::Duration::from_secs(2) })
+        );
 
-        // Execute the workflow.
-        workflow.execute().await.unwrap();
-    }
+    // Execute the workflow.
+    workflow.execute().await.unwrap();
+}
 ```
 
 ### API and CLI
