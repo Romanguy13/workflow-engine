@@ -26,8 +26,7 @@ A multi-threaded, asynchronous engine for defining, scheduling, and executing co
 ### Prerequisites
 
 - [Rust](https://www.rust-lang.org/tools/install) (1.56+ recommended)
-- [SQLite](https://www.sqlite.org/index.html) (if using the SQLite storage backend)
-- Git
+- [SQLite](https://www.sqlite.org/index.html) (If using the SQLite storage backend)
 
 ### Installation
 
@@ -41,7 +40,7 @@ workflow-engine = { git = "https://github.com/romanguy13/rust-workflow-engine" }
 **From Source:**
 
 ```sh
-git clone https://github.com/romanguy13/rust-workflow-engine.git
+git clone https://github.com/romanguy13/workflow-engine.git
 cd rust-workflow-engine
 cargo build
 ```
@@ -99,16 +98,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
 ## Examples
 
-The project will eventually include a REST API and CLI tool ('workflowctl') for managing workflows externally. Stay tuned for updates in the documentation.
-
 ### Running Examples
 
 Several examples are provided in the `/examples` directory. To run an example:
 
 ```sh
-# Run the simple workflow example
-cargo run --example simple_workflow
-
 # Run the advanced workflow example with options
 cargo run --example with_options
 ```
@@ -192,7 +186,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Acknowledgments
 
 - [Tokio](https://tokio.rs/) for the asynchronous runtime.
-- [sqlx](https://github.com/launchbadge/sqlx) for the SQL toolkit.
 - All contributors who helped shape this project.
 
 Happy Coding! 🚀
