@@ -1,0 +1,11 @@
+[package]
+name = "with-options"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+workflow-engine = { path = "../../.." }
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+env_logger = "0.9"

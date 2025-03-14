@@ -1,4 +1,5 @@
 use crate::storage::WorkflowStorage;
+use crate::TaskState;
 use async_trait::async_trait;
 use sqlx::{sqlite::SqlitePoolOptions, Pool, Row, Sqlite};
 use std::error::Error;
@@ -57,7 +58,7 @@ impl WorkflowStorage for SqliteStorage {
     async fn update_task_state(
         &self,
         task_id: &str,
-        state: &str,
+        state: TaskState,
         attempts: usize,
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
         sqlx::query(
@@ -67,7 +68,7 @@ impl WorkflowStorage for SqliteStorage {
             WHERE id = ?
             "#,
         )
-        .bind(state)
+        .bind(state.as_str())
         .bind(attempts as i64)
         .bind(task_id)
         .execute(&self.pool)
@@ -78,22 +79,24 @@ impl WorkflowStorage for SqliteStorage {
     async fn get_workflow_status(
         &self,
         workflow_id: &str,
-    ) -> Result<Vec<(String, String, usize)>, Box<dyn Error + Send + Sync>> {
+    ) -> Result<Vec<(String, TaskState, usize)>, Box<dyn Error + Send + Sync>> {
         let rows = sqlx::query(
             r#"
-          SELECT id, state, attempts
-          FROM tasks
-          WHERE workflow_id = ?
-          "#,
+            SELECT id, state, attempts
+            FROM tasks
+            WHERE workflow_id = ?
+            "#,
         )
         .bind(workflow_id)
         .fetch_all(&self.pool)
         .await?;
+
         Ok(rows
             .into_iter()
             .map(|row| {
                 let id: String = row.get(0);
-                let state: String = row.get(1);
+                let state_str: String = row.get(1);
+                let state = TaskState::from_str(&state_str).unwrap_or(TaskState::Failed); // Default to Failed if unknown state
                 let attempts: i64 = row.get(2);
                 (id, state, attempts as usize)
             })

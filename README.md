@@ -9,9 +9,9 @@ A multi-threaded, asynchronous engine for defining, scheduling, and executing co
 - [Features](#features)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
-- [Architecture](#architecture)
-- [Development](#development)
-- [License](#license)
+- [Examples](#examples)
+- [Project Structure](#project-structure)
+- [Extending the Engine](#extending-the-engine)
 
 ## Features
 
@@ -20,8 +20,6 @@ A multi-threaded, asynchronous engine for defining, scheduling, and executing co
 - **Asynchronous Execution:** Built with Tokio for high-performance, concurrent task execution.
 - **Retry Policies:** Automatic task retries on failure with customizable delay.
 - **State Persistence:** Track task and workflow status with a pluggable storage backend (SQLite, PostgreSQL, etc.).
-- **Extensible API:** REST and gRPC endpoints for external control and monitoring.
-- **CLI and Dashboard (Planned):** Tools to manage workflows and visualize execution progress.
 
 ## Getting Started
 
@@ -33,86 +31,148 @@ A multi-threaded, asynchronous engine for defining, scheduling, and executing co
 
 ### Installation
 
-1. **Clone the repository:**
+**As a Dependency:**
 
-   ```sh
-   git clone https://github.com/yourname/rust-workflow-engine.git
-   cd rust-workflow-engine
-   ```
+```sh
+[dependencies]
+workflow-engine = { git = "https://github.com/romanguy13/rust-workflow-engine" }
+```
 
-2. **Install sqlx-cli globally:**
+**From Source:**
 
-   ```sh
-   cargo install sqlx-cli
-   ```
-
-3. **Run the setup script:**
-
-   ```sh
-    ./scripts/setup.sh
-   ```
-
-4. **Run the engine:**
-
-   ```sh
-   cargo run
-   ```
+```sh
+git clone https://github.com/romanguy13/rust-workflow-engine.git
+cd rust-workflow-engine
+cargo build
+```
 
 ## Usage
 
 ### Defining a Workflow
 
-Below is a simple example of how to define and run a workflow with two tasks:
+Below is a simple example of how to define and run a workflow:
 
 **Rust Code:**
 
 ```rust
-use workflow_engine::engine::Workflow;
-use workflow_engine::task::ExampleTask;
-use workflow_engine::task::RetryPolicy;
-use workflow_engine::storage::sqlite_storage::SqliteStorage;
 use std::sync::Arc;
+use workflow_engine::{Workflow, RetryPolicy};
+use workflow_engine::storage::sqlite_storage::SqliteStorage;
+use workflow_engine::task::Task;
+
+// Define a custom task
+struct SimpleTask {
+    name: String,
+}
+
+#[async_trait::async_trait]
+impl Task for SimpleTask {
+    async fn execute(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        println!("Executing task: {}", self.name);
+        // Do some work here
+        Ok(())
+    }
+}
 
 #[tokio::main]
-async fn main() {
-    // Initialize storage backend (SQLite example)
-    let storage = Arc::new(SqliteStorage::new("sqlite:workflow.db").await.unwrap());
-    storage.init().await.unwrap();
+async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    // Initialize storage
+    let storage = Arc::new(SqliteStorage::new("sqlite:workflow.db").await?);
+    storage.init().await?;
 
-    // Build the workflow with a unique workflow ID.
-    let workflow = Workflow::new("example_workflow", storage)
+    // Build workflow
+    let workflow = Workflow::new("simple_workflow", storage)
+        .add_task("task1", SimpleTask { name: "First Task".into() }, vec![], None)
         .add_task(
-          "task1",
-          ExampleTask { name: "Task 1".into(), fail_once: false },
-          vec![],
-          None
-        )
-        .add_task(
-          "task2",
-          ExampleTask { name: "Task 2".into(), fail_once: true },
-          vec!["task1".into()],
-          Some(RetryPolicy { max_retries: 2, retry_delay: std::time::Duration::from_secs(2) })
+            "task2",
+            SimpleTask { name: "Second Task".into() },
+            vec!["task1".into()],
+            Some(RetryPolicy::default().with_max_retries(2))
         );
 
-    // Execute the workflow.
-    workflow.execute().await.unwrap();
+    // Execute workflow
+    workflow.execute().await?;
+
+    Ok(())
 }
 ```
 
-### API and CLI
+## Examples
 
 The project will eventually include a REST API and CLI tool ('workflowctl') for managing workflows externally. Stay tuned for updates in the documentation.
 
-## Architecture
+### Running Examples
 
-The engine is built around a modular design:
+Several examples are provided in the `/examples` directory. To run an example:
 
-- **Engine Core:** Manages task scheduling, dependency resolution, and concurrent execution.
-- **Task Abstraction:** All tasks implement a common 'Task' trait, allowing for custom user-defined behavior.
-- **Storage Layer:** A pluggable persistence backend records task state, execution history, and provides real-time status updates.
-- **API & CLI:** Interfaces for interacting with the engine programmatically and via command-line.
+```sh
+# Run the simple workflow example
+cargo run --example simple_workflow
 
-## Development
+# Run the advanced workflow example with options
+cargo run --example with_options
+```
+
+## Project Structure
+
+The engine is organized into modules to facilitate maintenance and extension:
+
+```sh
+src/
+├── engine/
+│   ├── dependency.rs      # Dependency graph structures
+│   ├── execution.rs       # Execution environment
+│   ├── executor.rs        # Task executor
+│   ├── mod.rs             # Module exports
+│   ├── options.rs         # Workflow options
+│   ├── task_state.rs      # Task state enumeration
+│   ├── task_wrapper.rs    # Task wrapper
+│   ├── validation.rs      # Workflow validation
+│   └── workflow.rs        # Workflow implementation
+├── storage/
+│   ├── implementations/   # Storage implementations
+│   └── mod.rs             # Storage trait definition
+├── task/
+│   ├── retry/             # Retry policy
+│   └── mod.rs             # Task trait definition
+└── lib.rs                 # Library entry point
+```
+
+## Extending the Engine
+
+### Custom Tasks
+
+Implement the `Task` trait to create custom tasks:
+
+```rust
+#[async_trait::async_trait]
+impl Task for MyCustomTask {
+    async fn execute(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        // Implementation goes here
+        Ok(())
+    }
+}
+```
+
+### Custom Storage
+
+Implement the `WorkflowStorage` trait to create a custom storage backend. An SQLite storage implementation is provided in the `storage` module for reference.
+
+```rust
+#[async_trait::async_trait]
+impl WorkflowStorage for MyCustomStorage {
+    async fn init(&self) -> Result<(), Box<dyn Error + Send + Sync>> {
+        // Initialize storage
+    }
+
+    async fn create_task_record(&self, workflow_id: &str, task_id: &str)
+        -> Result<(), Box<dyn Error + Send + Sync>> {
+        // Create task record
+    }
+
+    // Additional required methods...
+}
+```
 
 ### Code Style
 
