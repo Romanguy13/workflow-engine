@@ -3,7 +3,7 @@ use std::time::Duration;
 use workflow_engine::storage::sqlite_storage::SqliteStorage;
 use workflow_engine::storage::WorkflowStorage;
 use workflow_engine::task::Task;
-use workflow_engine::{RetryPolicy, Workflow, WorkflowOptions};
+use workflow_engine::{RetryPolicy, Workflow};
 
 #[derive(Clone)]
 struct DataProcessingTask {
@@ -43,12 +43,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     );
     storage.init().await?;
 
-    // Set workflow options
-    let options: WorkflowOptions = WorkflowOptions::new().with_max_concurrency(2);
-
     // Create a workflow with multiple tasks
     let workflow = Workflow::new("advanced_workflow", storage.clone())
-        .with_options(options)
         .add_task(
             "ingest",
             DataProcessingTask {

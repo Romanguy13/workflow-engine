@@ -25,7 +25,10 @@
 //! ## Example
 //!
 //! ```rust
+//! use workflow_engine::storage::implementations::MemoryStorage;
 //! use workflow_engine::{Workflow, Task, TaskState};
+//! use async_trait::async_trait;
+//! use std::error::Error;
 //! use std::sync::Arc;
 //!
 //! // Define a custom task
@@ -42,7 +45,7 @@
 //! #[tokio::main]
 //! async fn main() {
 //!     // Create a new workflow
-//!     let workflow = Workflow::new("my_workflow", Arc::new(()))
+//!     let workflow = Workflow::new("my_workflow", Arc::new(MemoryStorage::new()))
 //!         .add_task("task1", MyTask, vec![], None)  // Add a task with no dependencies
 //!         .add_task("task2", MyTask, vec!["task1".into()], None);  // Add a task with a dependency
 //!
@@ -63,5 +66,6 @@ pub mod engine;
 pub mod storage;
 pub mod task;
 
-pub use engine::{TaskState, Workflow, WorkflowOptions};
+pub use engine::{TaskState, Workflow};
+pub use storage::WorkflowStorage;
 pub use task::{RetryPolicy, Task};

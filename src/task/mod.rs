@@ -8,3 +8,6 @@ pub use retry::policy::RetryPolicy;
 pub trait Task: Send + Sync {
     async fn execute(&self) -> Result<(), Box<dyn Error + Send + Sync>>;
 }
+
+#[cfg(test)]
+mod tests;

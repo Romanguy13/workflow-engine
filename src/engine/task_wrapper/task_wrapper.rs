@@ -2,7 +2,7 @@ use crate::task::{RetryPolicy, Task};
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub(crate) struct TaskWrapper {
+pub struct TaskWrapper {
     /// The actual task implementation
     pub task: Arc<dyn Task>,
     /// IDs of tasks that this task depends on

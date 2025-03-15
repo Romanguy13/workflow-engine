@@ -20,4 +20,14 @@ impl RetryPolicy {
             retry_delay,
         }
     }
+
+    pub fn with_max_retries(mut self, value: usize) -> Self {
+        self.max_retries = value;
+        self
+    }
+
+    pub fn with_retry_delay(mut self, value: Duration) -> Self {
+        self.retry_delay = value;
+        self
+    }
 }

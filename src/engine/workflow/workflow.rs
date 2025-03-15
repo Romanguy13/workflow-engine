@@ -4,13 +4,12 @@ use std::error::Error;
 use std::sync::{Arc, Mutex};
 use tokio::sync::mpsc;
 
-use super::dependency::DependencyGraph;
-use super::execution::{ExecutionEnvironment, WorkflowSharedState};
-use super::executor::TaskExecutor;
-use super::options::WorkflowOptions;
-use super::task_state::TaskState;
-use super::task_wrapper::TaskWrapper;
-use super::validation;
+use super::super::dependency::DependencyGraph;
+use super::super::execution::{ExecutionEnvironment, WorkflowSharedState};
+use super::super::executor::TaskExecutor;
+use super::super::task_state::TaskState;
+use super::super::task_wrapper::TaskWrapper;
+use super::super::validation;
 use crate::storage::WorkflowStorage;
 use crate::task::{RetryPolicy, Task};
 
@@ -21,8 +20,6 @@ pub struct Workflow {
     workflow_id: String,
     /// Storage backend for persisting workflow state
     storage: Arc<dyn WorkflowStorage>,
-    /// Configuration options
-    options: WorkflowOptions,
 }
 
 impl Workflow {
@@ -31,13 +28,7 @@ impl Workflow {
             tasks: HashMap::new(),
             workflow_id: workflow_id.into(),
             storage,
-            options: WorkflowOptions::default(),
         }
-    }
-
-    pub fn with_options(mut self, options: WorkflowOptions) -> Self {
-        self.options = options;
-        self
     }
 
     pub fn add_task<T: Task + 'static>(
@@ -66,7 +57,9 @@ impl Workflow {
             self.tasks.len()
         );
 
-        validation::validate_workflow_tasks(&self.tasks)?;
+        if let Err(e) = validation::validate_workflow_tasks(&self.tasks) {
+            return Err(e);
+        }
 
         self.initialize_storage_records().await?;
 

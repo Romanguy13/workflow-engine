@@ -34,7 +34,7 @@ A multi-threaded, asynchronous engine for defining, scheduling, and executing co
 
 ```sh
 [dependencies]
-workflow-engine = { git = "https://github.com/romanguy13/rust-workflow-engine" }
+workflow-engine = { git = "https://github.com/romanguy13/workflow-engine" }
 ```
 
 **From Source:**
@@ -107,31 +107,6 @@ Several examples are provided in the `/examples` directory. To run an example:
 cargo run --example with_options
 ```
 
-## Project Structure
-
-The engine is organized into modules to facilitate maintenance and extension:
-
-```sh
-src/
-├── engine/
-│   ├── dependency.rs      # Dependency graph structures
-│   ├── execution.rs       # Execution environment
-│   ├── executor.rs        # Task executor
-│   ├── mod.rs             # Module exports
-│   ├── options.rs         # Workflow options
-│   ├── task_state.rs      # Task state enumeration
-│   ├── task_wrapper.rs    # Task wrapper
-│   ├── validation.rs      # Workflow validation
-│   └── workflow.rs        # Workflow implementation
-├── storage/
-│   ├── implementations/   # Storage implementations
-│   └── mod.rs             # Storage trait definition
-├── task/
-│   ├── retry/             # Retry policy
-│   └── mod.rs             # Task trait definition
-└── lib.rs                 # Library entry point
-```
-
 ## Extending the Engine
 
 ### Custom Tasks
@@ -168,6 +143,8 @@ impl WorkflowStorage for MyCustomStorage {
 }
 ```
 
+## Development
+
 ### Code Style
 
 - Use [rustfmt](https://github.com/rust-lang/rustfmt) to format your code:
@@ -176,8 +153,15 @@ impl WorkflowStorage for MyCustomStorage {
   cargo fmt
   ```
 
-- Write tests for new features and bug fixes.
 - Follow Rust's idiomatic patterns and naming conventions.
+
+### Testing
+
+- Run tests with:
+
+  ```sh
+  cargo test
+  ```
 
 ## License
 

@@ -2,10 +2,10 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use tokio::sync::mpsc;
 
-use super::task_wrapper::TaskWrapper;
+use super::super::task_wrapper::TaskWrapper;
 use crate::storage::WorkflowStorage;
 
-pub(crate) struct ExecutionEnvironment {
+pub struct ExecutionEnvironment {
     /// Total number of tasks in the workflow
     pub task_count: usize,
     /// Shared state for task execution
@@ -15,7 +15,7 @@ pub(crate) struct ExecutionEnvironment {
 }
 
 #[derive(Clone)]
-pub(crate) struct WorkflowSharedState {
+pub struct WorkflowSharedState {
     /// Map of task IDs to task wrappers
     pub tasks: Arc<HashMap<String, TaskWrapper>>,
     /// Number of dependencies remaining for each task

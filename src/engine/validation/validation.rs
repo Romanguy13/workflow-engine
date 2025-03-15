@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
 
-use super::task_wrapper::TaskWrapper;
+use super::super::task_wrapper::TaskWrapper;
 
 pub fn validate_workflow_tasks(
     tasks: &HashMap<String, TaskWrapper>,
