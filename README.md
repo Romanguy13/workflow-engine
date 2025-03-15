@@ -47,11 +47,39 @@ cargo build
 
 ## Usage
 
+### Setup storage
+
+The engine requires a storage backend to persist workflow and task state. If you are using the SQLite storage backend, initialize a `*.db` file:
+
+```sh
+touch workflow.db
+```
+
+### Defining a Task
+
+Define a task by implementing the `Task` trait:
+
+```rust
+use async_trait::async_trait;
+use workflow_engine::task::Task;
+
+struct MyCustomTask {
+    name: String,
+}
+
+#[async_trait]
+impl Task for MyCustomTask {
+    async fn execute(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        println!("Executing task: {}", self.name);
+        // Do some work here
+        Ok(())
+    }
+}
+```
+
 ### Defining a Workflow
 
 Below is a simple example of how to define and run a workflow:
-
-**Rust Code:**
 
 ```rust
 use std::sync::Arc;
@@ -108,20 +136,6 @@ cargo run --example with_options
 ```
 
 ## Extending the Engine
-
-### Custom Tasks
-
-Implement the `Task` trait to create custom tasks:
-
-```rust
-#[async_trait::async_trait]
-impl Task for MyCustomTask {
-    async fn execute(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        // Implementation goes here
-        Ok(())
-    }
-}
-```
 
 ### Custom Storage
 
